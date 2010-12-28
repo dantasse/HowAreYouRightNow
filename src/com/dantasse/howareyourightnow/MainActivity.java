@@ -1,5 +1,6 @@
 package com.dantasse.howareyourightnow;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,8 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 public class MainActivity extends Activity implements OnClickListener {
 
   private static final String FILENAME = "howareyourightnow.txt";
+  private File dataFile;
   private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HH:mm:ss");
   
   public List<Button> energyButtons = new ArrayList<Button>(); 
@@ -32,6 +34,8 @@ public class MainActivity extends Activity implements OnClickListener {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
+    File storageDir = Environment.getExternalStorageDirectory();
+    dataFile = new File(storageDir.getAbsolutePath() + "/" + FILENAME);
 
     LinearLayout energyLayout = (LinearLayout) findViewById(R.id.energy);
     LinearLayout stomachLayout = (LinearLayout) findViewById(R.id.stomach);
@@ -80,7 +84,7 @@ public class MainActivity extends Activity implements OnClickListener {
     if (exportButton.equals(v)) {
       try {
         StringBuilder sb = new StringBuilder();
-        FileInputStream fis = openFileInput(FILENAME);
+        FileInputStream fis = new FileInputStream(dataFile);
         while(fis.available() > 0) {
           sb.append((char)fis.read());
         }
@@ -103,8 +107,7 @@ public class MainActivity extends Activity implements OnClickListener {
     try {
       // so far, MODE_WORLD_READABLE doesn't seem to do anything; guess I have
       // to use a ContentProvider or something.
-      FileOutputStream fos = openFileOutput(FILENAME, 
-          Context.MODE_WORLD_READABLE | Context.MODE_APPEND);
+      FileOutputStream fos = new FileOutputStream(dataFile, true /* append */);
       fos.write(stringToWrite.getBytes());
       fos.close();
     } catch (IOException ioe) {
